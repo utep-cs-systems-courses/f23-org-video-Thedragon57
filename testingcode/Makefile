@@ -12,22 +12,17 @@ AS              = msp430-elf-gcc -mmcu=${CPU} -c
 all: main.elf
 
 #additional rules for files
-main.elf: ${COMMON_OBJECTS} main.o light.o StateMachine.o buzzer.o switch.o
+main.elf: ${COMMON_OBJECTS} main.o light.o buzzer.o
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^ -lTimer -lLcd 
 
 load: main.elf
 	msp430loader.sh main.elf
 
-main.o: light.h StateMachine.h buzzer.h switch.h
+main.o: light.h buzzer.h 
 
-light.o: StateMachine.h buzzer.h switch.h
+light.o: buzzer.h 
 
-StateMachine.o: light.h buzzer.h switch.h 
-
-buzzer.o: light.h StateMachine.h switch.h
-
-switch.o: light.h StateMachine.h switch.h
-
+buzzer.o: light.h 
 
 clean:
 	rm -f *.o *.elf
