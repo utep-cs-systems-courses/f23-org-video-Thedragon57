@@ -19,6 +19,125 @@ short LastplayerY = 0;
 
 int redrawScreen = 1;
 
+short catX = 64;
+short catY = 80;
+short LastCatX = 64;
+short LastCatY = 80;
+
+int ind = 0;
+
+int blockX[20];
+int blockY[20];
+int check[4];
+
+
+
+void CatChange(int checkCat){
+    if(checkCat){
+      blockX[ind]=playerX;
+      blockY[ind]=playerY;
+      ind++;
+      for(int i = 0; i < 20; i++){
+        fillRectangle(blockX[i], blockY[i], 15, 15, COLOR_ORANGE);
+      }
+
+      switch(checkCat){
+        case 1: //cat checking where it can go
+          
+          check[0] = 2; //up
+          check[1] = 2; //down
+          check[2] = 2; //left
+          check[3] = 2; //right
+
+          for(int i = 0; i < 20; i++){
+            if (catY - 16 == blockY[i]){
+              check[0]--;
+            }
+            if (catY + 16 == blockY[i]){
+              check[1]--;
+            }
+            if (catX - 16 == blockX[i]){
+              check[2]--;
+            }
+            if (catX + 16 == blockX[i]){
+              check[3]--;
+            }
+          }
+          int max = check[0];
+          for(int i = 0; i<4; i++){
+            if (check[i]>max){
+              max = i;
+            }
+          
+          }
+          catUpdate(max);
+          break;
+
+          }
+
+
+
+
+
+
+      }
+    else{
+        return;
+    }
+}
+
+void catUpdate(int move){
+  switch(move){
+    case 0:
+    catY -= 16;
+    fillRectangle(LastCatX, LastCatY, 15, 15, COLOR_BLACK); 
+    /* draw new shape */
+    fillRectangle(catX, catY, 15, 15, COLOR_BLUE); /* draw new shape */
+    /* remember color & pos for next redraw */
+    LastCatX = catX;
+    LastCatY = catY;
+
+    break;
+  
+
+    case 1:
+    catY += 16;
+    fillRectangle(LastCatX, LastCatY, 15, 15, COLOR_BLACK); 
+    /* draw new shape */
+    fillRectangle(catX, catY, 15, 15, COLOR_BLUE); /* draw new shape */
+    /* remember color & pos for next redraw */
+    LastCatX = catX;
+    LastCatY = catY;
+
+    break;
+
+
+    case 2:
+    catX -= 16;
+    fillRectangle(LastCatX, LastCatY, 15, 15, COLOR_BLACK); 
+    /* draw new shape */
+    fillRectangle(catX, catY, 15, 15, COLOR_BLUE); /* draw new shape */
+    /* remember color & pos for next redraw */
+    LastCatX = catX;
+    LastCatY = catY;
+
+
+    break;
+
+
+    case 3:
+    catX += 16;
+    fillRectangle(LastCatX, LastCatY, 15, 15, COLOR_BLACK); 
+    /* draw new shape */
+    fillRectangle(catX, catY, 15, 15, COLOR_BLUE); /* draw new shape */
+    /* remember color & pos for next redraw */
+    LastCatX = catX;
+    LastCatY = catY;
+
+
+    break;
+  }
+}
 
 void The_State_Machine(){
   switch(state){

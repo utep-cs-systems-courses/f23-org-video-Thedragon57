@@ -1,12 +1,22 @@
 #include <msp430.h>
+#include "StateMachine.h"
 #include "switch.h"
 #include "light.h"
-#include "StateMachine.h"
 #include "buzzer.h"
+#include <libTimer.h>
+#include "lcdutils.h"
+#include "lcddraw.h"
 
 void __interrupt_vec(PORT2_VECTOR) Port_2(){ //telling the computer that when an intrupt happens to use this funtion
+
+  if((P2IFG & BIT0) && (P2IFG & BIT3)){
+    CatChange(1);
+    P2IFG &= ~(BIT0);
+    P2IFG &= ~(BIT3);
+  }
   if(P2IFG & BIT0){
     //lights_off();
+    CatChange(1);
     state_change(1);
     P2IFG &= ~(BIT0);
   }
@@ -25,6 +35,7 @@ void __interrupt_vec(PORT2_VECTOR) Port_2(){ //telling the computer that when an
     state_change(4);
     P2IFG &= ~(BIT3);
   }
+  
   __delay_cycles(20000);
 
 }

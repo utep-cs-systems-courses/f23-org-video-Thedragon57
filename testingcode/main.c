@@ -59,8 +59,8 @@ int main(void) {
     if(i!=0){
       fillRectangle(0, i-1, 128, 1, COLOR_WHITE);
     }
-    
-  fillRectangle(0, 16, 15, 15, COLOR_ORANGE);
+  fillRectangle(64, 80, 15, 15, COLOR_BLUE);
+  fillRectangle(0, 0, 15, 15, COLOR_ORANGE);
   /*
   fillRectangle(112, 16, 15, 15, COLOR_ORANGE);
   fillRectangle(96, 0, 15, 15, COLOR_ORANGE);
