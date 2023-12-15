@@ -8,6 +8,7 @@
 	.text
 	
 
+	.extern redrawScreen
 	.extern wdt_c_handler
 WDT:
 	; start of prologue

@@ -12,7 +12,7 @@ AS              = msp430-elf-gcc -mmcu=${CPU} -c
 all: main.elf
 
 #additional rules for files
-main.elf: ${COMMON_OBJECTS} main.o light.o buzzer.o
+main.elf: ${COMMON_OBJECTS} main.o light.o buzzer.o wdt_handler.o
 	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $^ -lTimer -lLcd 
 
 load: main.elf

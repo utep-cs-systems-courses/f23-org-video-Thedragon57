@@ -40,9 +40,8 @@ unsigned char move = 1;
 int snake[5][3];
 int snake_length = 0;
 
-
-
 //-----------------------------------------------------------------------------------------------------
+
 void __interrupt_vec(PORT2_VECTOR) Port_2(){ //telling the computer that when an intrupt happens to use this funtion
 
   if(P2IFG & BIT0){
@@ -74,15 +73,14 @@ void __interrupt_vec(PORT2_VECTOR) Port_2(){ //telling the computer that when an
 
 }
 
+//-----------------------------------------------------------------------------------------------------
+
 void state_change(int new_state){
     state = new_state;
     The_State_Machine();
 }
 
-
-
 //-----------------------------------------------------------------------------------------------------
-
 
 void The_State_Machine(){
   switch(state){
@@ -220,16 +218,19 @@ void timerAUpmode()
 //-----------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------
-void __interrupt_vec(WDT_VECTOR) WDT(){
+void wdt_c_handler(){
+/*
   static char blink_count = 0;
   if (++blink_count == (rate/2) && blinking == 1) {
     light_toggle();
     blink_count = 0;
   }
+  */
 
   static int secCount = 0;
   secCount++;
-  if (secCount++ >= 250) {		/* 1/sec */
+  if (secCount++ >= 500) {		// 1/sec 
+    redrawScreen = 1;
     secCount = 0;
     if(move == 3 && snake[0][1] != 0){
       snake[0][1] -= 16;
@@ -248,18 +249,13 @@ void __interrupt_vec(WDT_VECTOR) WDT(){
       state_change(4);
     }
   }
+
 }
 
 //-----------------------------------------------------------------------------------------------------
 int main(void) {
   configureClocks();		/* setup master oscillator, CPU & peripheral clocks */
   enableWDTInterrupts();	/* enable periodic interrupt */
-  P1DIR &= ~(BIT3);//set the negation to have the direction of the button to 0
-  P1OUT |= (BIT3);//sets the out dirction to 1
-  P1REN |= (BIT3);//enables the pull resitors for ports 0-3
-  P1IE |= (BIT3);//enable interupt
-  P1IES |= (BIT3);//enable interupt edge select
-  P1IFG &= ~(BIT3);//sets the interupt flag to 0
   P2DIR &= ~(BIT0 | BIT1 | BIT2| BIT3);//set the negation to have the direction of the button to 0
   P2OUT |= (BIT0 | BIT1 | BIT2 | BIT3);//sets the out dirction to 1
   P2REN |= (BIT0 | BIT1 | BIT2 | BIT3);//enables the pull resitors for ports 0-3
@@ -271,12 +267,17 @@ int main(void) {
   P2SEL2 &= ~(BIT6 | BIT7);
   P2SEL &= ~BIT7;
   P2SEL |= BIT6;
+  enable_lights();
 
   lcd_init();
 
   u_char width = screenWidth, height = screenHeight;
 
   clearScreen(COLOR_BLACK);
+
+  snake[0][0] = 1;
+  snake[0][1] = 0; //x value
+  snake[0][2] = 0; //y value
   
   for(int i = 0; i <= width+1; i+=16){
     if(i!=0){
@@ -288,17 +289,20 @@ int main(void) {
       fillRectangle(0, i-1, 128, 1, COLOR_WHITE);
     }
   }
-  snake[0][0] = 1;
-  snake[0][1] = 0; //x value
-  snake[0][2] = 0; //y value
-
-  __bis_SR_register((LPM0_bits | GIE)); //LPM 4 disables watchdog timer and LMP 0 disables the cpu
-
+  or_sr(0x8);	              /**< GIE (enable interrupts) */
+  
+  //clearScreen(BG_COLOR);
   while (1) {			/* forever */
-    P1OUT &= ~BIT0;	/* led off */
+    if (redrawScreen) {
+      redrawScreen = 0;
+    }
+    light_toggle();/* led off */
     or_sr(0x10);	/**< CPU OFF */
-    P1OUT |= BIT0;	/* led on */
+    light_toggle();	/* led on */
   }
+
+  //__bis_SR_register((LPM0_bits | GIE)); //LPM 4 disables watchdog timer and LMP 0 disables the cpu
+
 
 
 }
