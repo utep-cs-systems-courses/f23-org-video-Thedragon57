@@ -4,6 +4,7 @@
 #include <libTimer.h>
 #include "lcdutils.h"
 #include "lcddraw.h"
+#include "assy.h"
 
 #define NUM_POSITIONS 5
 
@@ -38,7 +39,7 @@ int ind = 0;
 unsigned char move = 1;
 
 int snake[5][3];
-int snake_length = 0;
+int sound = 0;
 
 //-----------------------------------------------------------------------------------------------------
 
@@ -85,15 +86,14 @@ void state_change(int new_state){
 void The_State_Machine(){
   switch(state){
     case 1:
-    /*
-      blinking = 1;
-      if (frz < 1900){
-        frz += 100;
-        buzzer_set_period(frz);
+      
+      if(snake[0][1]-16<=-1||snake[0][1]-32<=-1){
+        buzzer_set_period(1000);
+        
       }
-      if(rate > 0x10)
-      rate = rate >> 1;
-      */
+      else{
+        buzzer_set_period(0);
+      }
       if(snake[0][1] != -1){
         fillRectangle(snake[0][1], snake[0][2], 15, 15, COLOR_ORANGE); 
         if(playerX!=LastplayerX || playerY!=LastplayerY){
@@ -101,14 +101,19 @@ void The_State_Machine(){
         }
         LastplayerX = snake[0][1];
       }
+      
 
 
       state = 2;
       break;
     case 2:
-      //lights_off();
-      //buzzer_set_period(0);
-      //blinking = 0;
+      
+      if(snake[0][2]-16<=-1||snake[0][2]-32<=-1){
+        buzzer_set_period(1000);
+      }
+      else{
+        buzzer_set_period(0);
+      }
       if(snake[0][2] != -1){
         fillRectangle(snake[0][1], snake[0][2], 15, 15, COLOR_ORANGE); 
         if(playerX!=LastplayerX || playerY!=LastplayerY){
@@ -116,11 +121,17 @@ void The_State_Machine(){
         } 
         LastplayerY = snake[0][2];
       }
+      
       state = 3;
       break;
     case 3:
-      //lights_on();
-      //blinking = 0;
+
+      if(snake[0][2]+16>=159||snake[0][2]+32>=159){
+        buzzer_set_period(1000);
+      }
+      else{
+        buzzer_set_period(0);
+      }
       if(snake[0][2] != 143){
         fillRectangle(snake[0][1], snake[0][2], 15, 15, COLOR_ORANGE); 
         
@@ -128,19 +139,17 @@ void The_State_Machine(){
         
         LastplayerY = snake[0][2];
       }
+      
       state = 4;
       break;
     case 4:
-      //blinking = 1;
-      /*
-      if (frz > 100){
-        frz -= 100;
-        buzzer_set_period(frz);
-      }
       
-      if(rate < 0x400);
-      rate = rate << 1;
-      */
+      if(snake[0][1]+16>=128||snake[0][1]+32>=128){
+        buzzer_set_period(1000);
+      }
+      else{
+        buzzer_set_period(0);
+      }
       if(snake[0][1] != 111){
         fillRectangle(snake[0][1], snake[0][2], 15, 15, COLOR_ORANGE); 
         
@@ -148,6 +157,9 @@ void The_State_Machine(){
         
         LastplayerX = snake[0][1];
       }
+      
+        
+      
 
 
       state = 1;
@@ -219,17 +231,19 @@ void timerAUpmode()
 
 //-----------------------------------------------------------------------------------------------------
 void wdt_c_handler(){
-/*
-  static char blink_count = 0;
-  if (++blink_count == (rate/2) && blinking == 1) {
-    light_toggle();
-    blink_count = 0;
-  }
-  */
+  
 
   static int secCount = 0;
   secCount++;
-  if (secCount++ >= 500) {		// 1/sec 
+  if(secCount==50){
+    buzzer_set_period(500);
+  }
+  if(secCount==125){
+    buzzer_set_period(1500);
+  }
+  
+  if (secCount++ >= 250) {		// 1/sec 
+    buzzer_set_period(sound);
     redrawScreen = 1;
     secCount = 0;
     if(move == 3 && snake[0][1] != 0){
@@ -267,7 +281,7 @@ int main(void) {
   P2SEL2 &= ~(BIT6 | BIT7);
   P2SEL &= ~BIT7;
   P2SEL |= BIT6;
-  enable_lights();
+  led();
 
   lcd_init();
 
